@@ -14,6 +14,9 @@ FPS = 60
 TITLE = "Ose Crawl Dev"
 BGCOLOR = DARKGREY
 
+# Base this on WIDTH and HEIGHT
+# 16 will make a ton of tiles
+# TILESIZE = 16
 TILESIZE = 32
 GRIDWIDTH = WIDTH / TILESIZE
 GRIDHEIGHT = HEIGHT / TILESIZE

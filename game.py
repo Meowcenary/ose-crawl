@@ -1,3 +1,4 @@
+# Boilerplate
 import pygame as pg
 import sys
 from settings import *
@@ -15,21 +16,36 @@ class Game:
     def load_data(self):
         pass
 
+# Boilerplate end
+
+    # initialize all variables and do all the setup for a new game
     def new(self):
-        # initialize all variables and do all the setup for a new game
+        # all_sprites and walls are set to an empty sprite group
         self.all_sprites = pg.sprite.Group()
         self.walls = pg.sprite.Group()
+        # 0,0 is top left corner
+        # create and render a player sprite
         self.player = Player(self, 10, 10)
-        for x in range(0, 40):
-            Wall(self, x, 5)
 
+        # Room in top left corner
+        # self.draw_room((0, 0), (6, 7))
+        # # hallway connecting left and right room
+        # self.draw_room((6, 5), (10, 7))
+        # # room to the right, not very tall
+        # self.draw_room((10, 3), (22, 7))
+
+    # game loop - set self.playing = False to end the game
     def run(self):
-        # game loop - set self.playing = False to end the game
         self.playing = True
         while self.playing:
+            # deltatime, the clock.tick(FPS) limits frame rate to FPS but also
+            # returns the milliseconds that have passed since the last call
             self.dt = self.clock.tick(FPS) / 1000
+            # process events
             self.events()
+            # update sprite properties
             self.update()
+            # draw grid and sprites on to the screen
             self.draw()
 
     def quit(self):
@@ -37,7 +53,8 @@ class Game:
         sys.exit()
 
     def update(self):
-        # update portion of the game loop
+        # calling update on a sprite group will call update on
+        # all of the sprites within the group
         self.all_sprites.update()
 
     def draw_grid(self):
@@ -47,9 +64,14 @@ class Game:
             pg.draw.line(self.screen, LIGHTGREY, (0, y), (WIDTH, y))
 
     def draw(self):
+        # screen is a surface, make it entirely one color
         self.screen.fill(BGCOLOR)
         self.draw_grid()
+        # this will call draw on each sprite in the group
+        # might be able to just draw the player?
         self.all_sprites.draw(self.screen)
+
+        # Update the full display Surface to the screen
         pg.display.flip()
 
     def events(self):
@@ -57,16 +79,19 @@ class Game:
         for event in pg.event.get():
             if event.type == pg.QUIT:
                 self.quit()
+            # handle keyboard input
             if event.type == pg.KEYDOWN:
                 if event.key == pg.K_ESCAPE:
+                    # raise a quit event
                     self.quit()
-                if event.key == pg.K_LEFT:
+                # handle movement keys arrow or hjkl
+                if event.key in (pg.K_LEFT, pg.K_h):
                     self.player.move(dx=-1)
-                if event.key == pg.K_RIGHT:
+                if event.key in (pg.K_RIGHT, pg.K_l):
                     self.player.move(dx=1)
-                if event.key == pg.K_UP:
+                if event.key in (pg.K_UP, pg.K_k):
                     self.player.move(dy=-1)
-                if event.key == pg.K_DOWN:
+                if event.key in (pg.K_DOWN, pg.K_j):
                     self.player.move(dy=1)
 
     def show_start_screen(self):
@@ -74,3 +99,25 @@ class Game:
 
     def show_go_screen(self):
         pass
+
+# consider moving into a class Room
+# class Room:
+    def draw_room(self, start, end):
+        start_x, start_y = start[0], start[1]
+        end_x, end_y = end[0], end[1]
+        # top
+        self.draw_h_wall(start_x, end_x, start_y)
+        # left
+        self.draw_v_wall(start_y, end_y, start_x)
+        # right, either right or bottom needs + 1 to extend
+        self.draw_v_wall(start_y, end_y+1, end[0])
+        # bottom
+        self.draw_h_wall(start_x, end_x, end[1])
+
+    def draw_h_wall(self, start_x, end_x, y):
+        for x in range(start_x, end_x):
+            Wall(self, x, y)
+
+    def draw_v_wall(self, start_y, end_y, x):
+        for y in range(start_y, end_y):
+            Wall(self, x, y)

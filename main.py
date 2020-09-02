@@ -1,6 +1,5 @@
 from game import *
 
-# create the game object
 g = Game()
 g.show_start_screen()
 while True:
