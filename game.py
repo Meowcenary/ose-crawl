@@ -19,7 +19,7 @@ class Game:
         self.map_data = []
 
         # open map.txt and read each line of it into map_data
-        with open(path.join(game_folder, 'map.txt'), 'rt') as f:
+        with open(path.join(game_folder, 'maps/map.txt'), 'rt') as f:
             for line in f:
                 self.map_data.append(line)
 # Boilerplate end
