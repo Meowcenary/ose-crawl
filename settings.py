@@ -1,3 +1,7 @@
+"""
+Settings for pygame used by game.py initialize
+"""
+
 # define some colors (R, G, B)
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)

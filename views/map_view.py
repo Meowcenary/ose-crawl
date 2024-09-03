@@ -3,18 +3,21 @@ from os import path
 
 import pygame as pg
 
+from event_types import *
 from settings import *
 from sprites import Wall
+
 
 class MapView:
     """
     Class for drawing and updating the map view of the game
     """
 
-    def __init__(self):
+    def __init__(self, player):
         self.map_objects = pg.sprite.Group()
         # Specific group for walls
         self.walls = pg.sprite.Group()
+        self.player = player
 
     def build(self):#filepath=""):
         """
@@ -23,6 +26,31 @@ class MapView:
         Determine if building from file or generating and populate the map
         """
         self.load_map_from_file()
+
+    def handle_event(self, event):
+        """
+        Handle input events for the map view
+        """
+        # Most events will be handld by the view they're in, but sometimes things will
+        # bubble up to the top level game class such as quitting the game or changing the
+        # current view
+        game_event = None
+
+        if event.type == pg.KEYDOWN:
+            if event.key == pg.K_ESCAPE:
+                # this will need to be replaced with something more robust
+                game_event = CHANGE_VIEW_START_MENU
+            # handle movement keys arrow or hjkl
+            if event.key in (pg.K_LEFT, pg.K_h):
+                self.move_object(self.player, dx=-1)
+            if event.key in (pg.K_RIGHT, pg.K_l):
+                self.move_object(self.player, dx=1)
+            if event.key in (pg.K_UP, pg.K_k):
+                self.move_object(self.player, dy=-1)
+            if event.key in (pg.K_DOWN, pg.K_j):
+                self.move_object(self.player, dy=1)
+
+        return game_event
 
     def update(self):
         self.map_objects.update()

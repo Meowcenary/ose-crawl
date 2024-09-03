@@ -3,22 +3,32 @@ from os import path
 
 import pygame as pg
 
+from event_types import *
 from settings import *
-from views import MapView
 from sprites import Player, Wall
+from views import MapView, StartMenuView
 
 class Game:
     def __init__(self):
+        """
+        Initialize PyGame settings and create game specific objects.
+        """
+        # Pygame settings
         pg.init()
         self.screen = pg.display.set_mode((WIDTH, HEIGHT))
         pg.display.set_caption(TITLE)
         self.clock = pg.time.Clock()
         pg.key.set_repeat(500, 100)
-        # Create blank map
-        self.map_view = MapView()
+        # Potentially break this out to settings FONT='Comic Sans MS', FONT_SIZE=30
+        self.comic_sans_font = pg.font.SysFont('Comic Sans MS', 30)
+
         # Create a new player
         self.player = Player(1, 4)
-        # self.current_view = None
+
+        # Create blank map
+        self.map_view = MapView(self.player)
+        self.start_menu_view = StartMenuView(self.comic_sans_font)
+        self.current_view = self.start_menu_view
 
     def new(self):
         """
@@ -27,13 +37,14 @@ class Game:
         # Build the map - i.e put down walls and other map objects
         self.map_view.build()
         self.map_view.add_object(self.player)
-        # Create a player and add it to the map
-        # self.map_view.add_object(self.player)
 
-    # game loop - set self.playing = False to end the game
     def run(self):
-        self.playing = True
-        while self.playing:
+        """
+        Game loop for program.
+
+        Handle events, update sprites, draw to screen.
+        """
+        while True:
             # deltatime, the clock.tick(FPS) limits frame rate to FPS but also
             # returns the milliseconds that have passed since the last call
             self.dt = self.clock.tick(FPS) / 1000
@@ -45,34 +56,45 @@ class Game:
             self.draw()
 
     def quit(self):
+        """
+        Signal PyGame to quit.
+        """
         pg.quit()
         sys.exit()
 
     # catch and handle all events here
     def events(self):
+        """
+        Process events and handle any that bubble up from view.
+        """
         for event in pg.event.get():
-            if event.type == pg.QUIT:
+            # game events are signals from views that tell the game that to handle the
+            # event it will require the game class to step in e.g quitting the game,
+            # switching views
+            game_event = self.current_view.handle_event(event)
+
+            if game_event == CHANGE_VIEW_MAP:
+                self.set_current_view(self.map_view)
+            if game_event == CHANGE_VIEW_START_MENU:
+                self.set_current_view(self.start_menu_view)
+            if game_event == QUIT:
                 self.quit()
-            # handle keyboard input
-            if event.type == pg.KEYDOWN:
-                if event.key == pg.K_ESCAPE:
-                    # raise a quit event
-                    self.quit()
-                # handle movement keys arrow or hjkl
-                if event.key in (pg.K_LEFT, pg.K_h):
-                    self.map_view.move_object(self.player, dx=-1)
-                if event.key in (pg.K_RIGHT, pg.K_l):
-                    self.map_view.move_object(self.player, dx=1)
-                if event.key in (pg.K_UP, pg.K_k):
-                    self.map_view.move_object(self.player, dy=-1)
-                if event.key in (pg.K_DOWN, pg.K_j):
-                    self.map_view.move_object(self.player, dy=1)
+
+    def set_current_view(self, current_view=None):
+        """
+        Set the current view for the game.
+        """
+        self.current_view = current_view
 
     def update(self):
-        # self.current_view.update()
-        self.map_view.update()
+        """
+        Update all the sprites on the current view.
+        """
+        self.current_view.update()
 
     def draw(self):
-        # self.current_view.draw()
-        self.map_view.draw(self.screen)
+        """
+        Draw the current view to the screen and render with display.flip().
+        """
+        self.current_view.draw(self.screen)
         pg.display.flip()
