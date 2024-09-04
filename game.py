@@ -6,7 +6,7 @@ import pygame as pg
 from event_types import *
 from settings import *
 from sprites import Player, Wall
-from views import MapView, StartMenuView
+from views import MapView, StartMenuView, VictoryView
 
 class Game:
     def __init__(self):
@@ -28,6 +28,7 @@ class Game:
         # Create blank map
         self.map_view = MapView(self.player)
         self.start_menu_view = StartMenuView(self.comic_sans_font)
+        self.victory_view = VictoryView(self.comic_sans_font)
         self.current_view = self.start_menu_view
 
     def new(self):
@@ -77,6 +78,8 @@ class Game:
                 self.set_current_view(self.map_view)
             if game_event == CHANGE_VIEW_START_MENU:
                 self.set_current_view(self.start_menu_view)
+            if game_event == CHANGE_VIEW_VICTORY:
+                self.set_current_view(self.victory_view)
             if game_event == QUIT:
                 self.quit()
 

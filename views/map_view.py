@@ -5,7 +5,7 @@ import pygame as pg
 
 from event_types import *
 from settings import *
-from sprites import Wall
+from sprites import GoalTile, Wall
 
 
 class MapView:
@@ -17,6 +17,7 @@ class MapView:
         self.map_objects = pg.sprite.Group()
         # Specific group for walls
         self.walls = pg.sprite.Group()
+        self.goal_tile = pg.sprite.Group()
         self.player = player
 
     def build(self):#filepath=""):
@@ -35,6 +36,9 @@ class MapView:
         # bubble up to the top level game class such as quitting the game or changing the
         # current view
         game_event = None
+
+        if event.type == CHANGE_VIEW_VICTORY:
+            game_event = CHANGE_VIEW_VICTORY
 
         if event.type == pg.KEYDOWN:
             if event.key == pg.K_ESCAPE:
@@ -62,6 +66,7 @@ class MapView:
         screen.fill(BGCOLOR)
         self.draw_grid(screen)
         self.walls.draw(screen)
+        self.goal_tile.draw(screen)
         self.map_objects.draw(screen)
 
     def draw_grid(self, screen):
@@ -85,13 +90,17 @@ class MapView:
         Move a map object to a new position where dx is the change in x and dy is the
         change in y
         """
-        if self.collide_with_walls(map_object, dx, dy):
+        if self.not_collide_with_walls(map_object, dx, dy):
             map_object.x += dx
             map_object.y += dy
 
+        if self.collide_with_goal_tile(map_object, dx, dy):
+            pg.event.post(pg.event.Event(CHANGE_VIEW_VICTORY))
+
+
     # If you reverse this logic so that on collision it returns True and on miss False
     # you can do a kind of cool climb on walls movement
-    def collide_with_walls(self, map_object, dx=0, dy=0):
+    def not_collide_with_walls(self, map_object, dx=0, dy=0):
         """
         Determine if a game object will collide with a wall
         """
@@ -99,6 +108,15 @@ class MapView:
             if wall.x == map_object.x + dx and wall.y == map_object.y + dy:
                 return False
         return True
+
+    def collide_with_goal_tile(self, map_object, dx=0, dy=0):
+        """
+        Determine if a game object collides with the goal tile
+        """
+        for gt in self.goal_tile:
+            if gt.x == map_object.x + dx and gt.y == map_object.y + dy:
+                return True
+        return False
 
     def add_room(self, top_left, bottom_right):
         """
@@ -146,3 +164,5 @@ class MapView:
             for col, tile in enumerate(tiles):
                 if tile == '1':
                     self.walls.add(Wall(col, row))
+                elif tile == 'X':
+                    self.goal_tile.add(GoalTile(col, row))

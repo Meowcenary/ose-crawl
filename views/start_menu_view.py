@@ -31,7 +31,7 @@ class StartMenuView:
 
     def change_active_option(self, new_active_index):
         """
-        Toggle current opiton off of active, switch to new active option, toggle that
+        Toggle current option off of active, switch to new active option, toggle that
         option to active
         """
         self.current_option.toggle_active()
