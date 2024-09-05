@@ -25,10 +25,12 @@ class Game:
         # Create a new player
         self.player = Player(1, 4)
 
-        # Create blank map
+        # Create views
         self.map_view = MapView(self.player)
         self.start_menu_view = StartMenuView(self.comic_sans_font)
         self.victory_view = VictoryView(self.comic_sans_font)
+
+        # Set initial view
         self.current_view = self.start_menu_view
 
     def new(self):
