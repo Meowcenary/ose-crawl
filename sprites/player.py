@@ -19,6 +19,9 @@ class Player(pg.sprite.Sprite):
         self.x, self.y = x, y
         # the initial position is set by update
 
+        self.gold_count = 0
+        self.moves = 0
+
     def update(self):
         # Update the position of the image rect
         self.rect.x = self.x * TILESIZE

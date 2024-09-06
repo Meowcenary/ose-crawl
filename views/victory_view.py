@@ -14,6 +14,8 @@ class VictoryView:
     """
     def __init__(self, font):
         self.font = font
+        self.gold_count = None
+        self.move_count = None
 
     def handle_event(self, event):
         game_event = None
@@ -34,6 +36,15 @@ class VictoryView:
         """
         # clear the screen
         screen.fill(BGCOLOR)
-        text_surface = self.font.render("Congratulations! You've found the exit.", False, (0, 0, 0))
+
+        label = []
+        label.append(self.font.render("Congratulations! You've found the exit.", False, (0, 0, 0)))
+        label.append(self.font.render(f"Gold: {self.gold_count}", False, (0, 0, 0)))
+        label.append(self.font.render(f"Moves: {self.move_count}", False, (0, 0, 0)))
+
         center_of_screen = (WIDTH/2, HEIGHT/2)
-        screen.blit(text_surface, text_surface.get_rect(center=center_of_screen))
+
+        for i in range(len(label)):
+            # Create a new tuple to center this line
+            line_center = (center_of_screen[0], center_of_screen[1] + i*30)
+            screen.blit(label[i], label[i].get_rect(center=line_center))

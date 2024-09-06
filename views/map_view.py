@@ -40,22 +40,27 @@ class MapView:
         if event.type == CHANGE_VIEW_VICTORY:
             game_event = CHANGE_VIEW_VICTORY
 
-        # if event.type = PLAYER_PICKUP_GOLD:
-        #     pass
-        #
+        if event.type == PLAYER_PICKUP_GOLD:
+          event.gold.kill()
+          self.player.gold_count += 1
+
         if event.type == pg.KEYDOWN:
             if event.key == pg.K_ESCAPE:
                 # this will need to be replaced with something more robust
                 game_event = CHANGE_VIEW_START_MENU
             # handle movement keys arrow or hjkl
             if event.key in (pg.K_LEFT, pg.K_h):
-                self.move_object(self.player, dx=-1)
+                if self.move_object(self.player, dx=-1):
+                    self.player.moves += 1
             if event.key in (pg.K_RIGHT, pg.K_l):
-                self.move_object(self.player, dx=1)
+                if self.move_object(self.player, dx=1):
+                    self.player.moves += 1
             if event.key in (pg.K_UP, pg.K_k):
-                self.move_object(self.player, dy=-1)
+                if self.move_object(self.player, dy=-1):
+                    self.player.moves += 1
             if event.key in (pg.K_DOWN, pg.K_j):
-                self.move_object(self.player, dy=1)
+                if self.move_object(self.player, dy=1):
+                    self.player.moves += 1
 
         return game_event
 
@@ -93,16 +98,25 @@ class MapView:
         Move a map object to a new position where dx is the change in x and dy is the
         change in y
         """
+        # TODO: Refactor so that map bojects implement move functions themselves for
+        # containing logic on what they can and can't hit
+        # map_object.move(dx, dy)
+
+        # Player specific logic for moving
         if self.not_collide_with_walls(map_object, dx, dy):
             map_object.x += dx
             map_object.y += dy
+        else:
+            return False
 
-        if self.collide_with_goal_tile(map_object, dx, dy):
+        if self.collide_with_goal_tile(map_object):
             pg.event.post(pg.event.Event(CHANGE_VIEW_VICTORY))
 
-        if self.collide_with_gold(map_object, dx, dy):
-            pg.event.post(pg.event.Event(PLAYER_PICKUP_GOLD))
+        collides, gold = self.collide_with_gold(map_object)
+        if gold:
+            pg.event.post(pg.event.Event(PLAYER_PICKUP_GOLD, gold=gold))
 
+        return True
 
     # If you reverse this logic so that on collision it returns True and on miss False
     # you can do a kind of cool climb on walls movement
@@ -124,12 +138,14 @@ class MapView:
                 return True
         return False
 
+    # For an object to be picked up, set collision to only detect after the player has
+    # moved onto the sprite i.e wait set dx , dy to zero so it doesn't look at the space
+    # the player is moving into, but the one it's on
     def collide_with_gold(self, map_object, dx=0, dy=0):
         for map_obj in self.map_objects:
             if type(map_obj) == Gold and map_obj.x == map_object.x + dx and map_obj.y == map_object.y + dy:
-                # map_obj.kill()
-                return True
-        return False
+                return True, map_obj
+        return False, None
 
     def add_room(self, top_left, bottom_right):
         """

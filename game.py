@@ -81,6 +81,7 @@ class Game:
             if game_event == CHANGE_VIEW_START_MENU:
                 self.set_current_view(self.start_menu_view)
             if game_event == CHANGE_VIEW_VICTORY:
+                self.victory_view.gold_count, self.victory_view.move_count = self.player.gold_count, self.player.moves
                 self.set_current_view(self.victory_view)
             if game_event == QUIT:
                 self.quit()
