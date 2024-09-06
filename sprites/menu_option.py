@@ -4,7 +4,7 @@ from settings import *
 
 
 class MenuOption(pg.sprite.Sprite):
-    def __init__(self, x, y, width=250, height=100, active=False, font="", text="Default Menu Text"):
+    def __init__(self, x, y, width=250, height=100, active=False, font="", text="Default Menu Text", on_select=None):
         """
         x, y - position of top left corner on the screen
         height, width - dimensions in pixels
@@ -22,8 +22,8 @@ class MenuOption(pg.sprite.Sprite):
         self.image.fill(GREEN)
         self.rect = self.image.get_rect()
         self.text = text
-        # this is the function to be called on this menu option being selected
-        self.on_select = None
+        # this is the event to raise when selected
+        self.on_select = on_select
 
     def toggle_active(self):
         if self.active:

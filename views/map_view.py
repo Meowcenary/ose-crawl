@@ -177,7 +177,7 @@ class MapView:
         for y in range(start_y, end_y):
             self.walls.add(Wall(x, y))
 
-    def load_map_from_file(self):
+    def load_map_from_file(self, file='map.txt'):
         """
         Load a map from a formatted text file
         """
@@ -185,7 +185,7 @@ class MapView:
         map_data = []
 
         # open map.txt and read each line of it into map_data
-        with open(path.join(game_folder, 'maps/map.txt'), 'rt') as f:
+        with open(path.join(game_folder, 'maps', file), 'rt') as f:
             for line in f:
                 map_data.append(line)
 

@@ -1,3 +1,5 @@
+from pathlib import Path
+
 import pygame as pg
 
 from event_types import *
@@ -5,25 +7,33 @@ from sprites import MenuOption
 from settings import *
 
 
-class StartMenuView:
+class MapSelectView:
     """
-    Class for drawing and updating the start menu view of the game.
+    Class for drawing and updating the map select menu view of the game.
     """
     def __init__(self, font):
-        height, width = 250, 500
+        height, width = 100, 300
         self.font = font
         # options on the menu that can be selected
         self.menu_option_sprites = pg.sprite.Group()
-        self.menu_options = [
-            MenuOption(1, 1, width, height, True, font, "Start New Game", CHANGE_VIEW_MAP),
-            MenuOption(1, height+10, width, height, False, font, "View High Scores"),
-            MenuOption(1, (height+10)*2, width, height, False, font, "Map Select", CHANGE_VIEW_MAP_SELECT)
-        ]
-        self.menu_option_sprites.add(self.menu_options[0])
-        self.menu_option_sprites.add(self.menu_options[1])
-        self.menu_option_sprites.add(self.menu_options[2])
+        self.menu_options = []
+        self.create_menu_options(width, height, font)
+
         self.current_option_index = 0
         self.current_option = self.menu_options[self.current_option_index]
+        self.current_option.toggle_active()
+
+    def create_menu_options(self, width, height, font):
+        path = Path("maps/")
+
+        option_y = 1
+        count = 0
+        for entry in path.iterdir():
+            if entry.is_file():
+                menu_option = MenuOption(1, 1+(height+10)*count, width, height, False, font, entry.name, BUILD_MAP_FROM_FILE)
+                self.menu_options.append(menu_option)
+                self.menu_option_sprites.add(menu_option)
+                count += 1
 
     def update(self):
         self.menu_option_sprites.update()
@@ -57,7 +67,7 @@ class StartMenuView:
                 self.current_option_index += 1
                 self.change_active_option(self.current_option_index)
             if event.key in (pg.K_RETURN, pg.K_KP_ENTER):
-                game_event = self.current_option.on_select
+                pg.event.post(pg.event.Event(self.current_option.on_select, map_file=self.current_option.text))
 
         return game_event
 
