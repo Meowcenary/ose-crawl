@@ -23,7 +23,7 @@ class VictoryView:
         if event.type == pg.KEYDOWN:
             if event.key == pg.K_ESCAPE:
                 # this will need to be replaced with something more robust
-                game_event = QUIT
+                game_event = CHANGE_VIEW_START_MENU
 
         return game_event
 

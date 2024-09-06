@@ -1,12 +1,12 @@
 import sys
-from os import path
 
 import pygame as pg
 
 from event_types import *
+from map import Map
 from settings import *
 from sprites import Player, Wall
-from views import MapView, StartMenuView, VictoryView
+from views import MapSelectView, MapView, StartMenuView, VictoryView
 
 class Game:
     def __init__(self):
@@ -29,6 +29,7 @@ class Game:
         self.map_view = MapView(self.player)
         self.start_menu_view = StartMenuView(self.comic_sans_font)
         self.victory_view = VictoryView(self.comic_sans_font)
+        self.map_select_view = MapSelectView(self.comic_sans_font)
 
         # Set initial view
         self.current_view = self.start_menu_view
@@ -76,13 +77,25 @@ class Game:
             # switching views
             game_event = self.current_view.handle_event(event)
 
-            if game_event == CHANGE_VIEW_MAP:
+            if game_event == CHANGE_VIEW_MAP or event.type == CHANGE_VIEW_MAP:
                 self.set_current_view(self.map_view)
-            if game_event == CHANGE_VIEW_START_MENU:
+            if game_event == CHANGE_VIEW_START_MENU or event.type == CHANGE_VIEW_START_MENU:
                 self.set_current_view(self.start_menu_view)
             if game_event == CHANGE_VIEW_VICTORY:
                 self.victory_view.gold_count, self.victory_view.move_count = self.player.gold_count, self.player.moves
                 self.set_current_view(self.victory_view)
+            if game_event == CHANGE_VIEW_MAP_SELECT or event.type == CHANGE_VIEW_MAP_SELECT:
+                self.map_select_view = MapSelectView(self.comic_sans_font)
+                self.set_current_view(self.map_select_view)
+            if event.type == BUILD_MAP_FROM_FILE:
+                self.map_view = MapView(self.player)
+                self.map_view.load_map_from_file(event.map_file)
+                self.map_view.add_object(self.player)
+                pg.event.post(pg.event.Event(CHANGE_VIEW_MAP))
+            if game_event == BUILD_RANDOM_MAP or event.type == BUILD_RANDOM_MAP:
+                mapp = Map()
+                mapp.build_valid_map()
+                pg.event.post(pg.event.Event(CHANGE_VIEW_MAP_SELECT))
             if game_event == QUIT:
                 self.quit()
 
