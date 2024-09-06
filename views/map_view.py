@@ -5,18 +5,18 @@ import pygame as pg
 
 from event_types import *
 from settings import *
-from sprites import GoalTile, Gold, Wall
+from sprites import GoalTile, Gold, OpenSpace, Wall
 
 
 class MapView:
     """
     Class for drawing and updating the map view of the game
     """
-
     def __init__(self, player):
         self.map_objects = pg.sprite.Group()
         # Specific group for walls
         self.walls = pg.sprite.Group()
+        self.open_spaces = pg.sprite.Group()
         self.goal_tile = pg.sprite.Group()
         self.player = player
 
@@ -72,8 +72,8 @@ class MapView:
         Draw the map to the screen. Redraws map each time
         """
         screen.fill(BGCOLOR)
-        self.draw_grid(screen)
         self.walls.draw(screen)
+        self.open_spaces.draw(screen)
         self.goal_tile.draw(screen)
         self.map_objects.draw(screen)
 
@@ -197,3 +197,6 @@ class MapView:
                     self.goal_tile.add(GoalTile(col, row))
                 elif tile == 'G':
                     self.map_objects.add(Gold(col, row))
+                    self.open_spaces.add(OpenSpace(col, row))
+                elif tile == '.' or tile == 'P':
+                    self.open_spaces.add(OpenSpace(col, row))
