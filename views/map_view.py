@@ -5,7 +5,7 @@ import pygame as pg
 
 from event_types import *
 from settings import *
-from sprites import GoalTile, Wall
+from sprites import GoalTile, Gold, Wall
 
 
 class MapView:
@@ -40,6 +40,9 @@ class MapView:
         if event.type == CHANGE_VIEW_VICTORY:
             game_event = CHANGE_VIEW_VICTORY
 
+        # if event.type = PLAYER_PICKUP_GOLD:
+        #     pass
+        #
         if event.type == pg.KEYDOWN:
             if event.key == pg.K_ESCAPE:
                 # this will need to be replaced with something more robust
@@ -97,6 +100,9 @@ class MapView:
         if self.collide_with_goal_tile(map_object, dx, dy):
             pg.event.post(pg.event.Event(CHANGE_VIEW_VICTORY))
 
+        if self.collide_with_gold(map_object, dx, dy):
+            pg.event.post(pg.event.Event(PLAYER_PICKUP_GOLD))
+
 
     # If you reverse this logic so that on collision it returns True and on miss False
     # you can do a kind of cool climb on walls movement
@@ -115,6 +121,13 @@ class MapView:
         """
         for gt in self.goal_tile:
             if gt.x == map_object.x + dx and gt.y == map_object.y + dy:
+                return True
+        return False
+
+    def collide_with_gold(self, map_object, dx=0, dy=0):
+        for map_obj in self.map_objects:
+            if type(map_obj) == Gold and map_obj.x == map_object.x + dx and map_obj.y == map_object.y + dy:
+                # map_obj.kill()
                 return True
         return False
 
@@ -166,3 +179,5 @@ class MapView:
                     self.walls.add(Wall(col, row))
                 elif tile == 'X':
                     self.goal_tile.add(GoalTile(col, row))
+                elif tile == 'G':
+                    self.map_objects.add(Gold(col, row))
